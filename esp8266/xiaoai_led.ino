@@ -1,19 +1,19 @@
 #define BLINKER_PRINT Serial
-#define BLINKER_ESP_SMARTCONFIG
+#define BLINKER_ESP_SMARTCONFIG    //智能配网
 #define BLINKER_WIFI
 #define BLINKER_MIOT_LIGHT
-
-
-
+#define BLINKER_BUTTON  //
+#define BLINKER_BUTTON_PIN 3
 #include <Blinker.h>
 #include <EEPROM.h>
 
-char auth[] = "5f4e37*****"; //上一步中在app中获取到的Secret Key（新建设备的秘钥）
+char auth[] = "5f4e37b8b10***"; //上一步中在app中获取到的Secret Key（新建设备的秘钥）
 //char ssid[] = "TP-LINK_9683"; //你的WiFi热点名称
 //char pswd[] = "123456789"; //你的WiFi码
 
 // 新建组件对象
 BlinkerButton Button1("btn1");
+BlinkerButton Button2("btn2");
 BlinkerNumber Number1("num-abc");
 BlinkerRGB RGB1 ("RGBKey");
 
@@ -21,6 +21,7 @@ int counter = 0;
 int LED_R=0,LED_G=0,LED_B=0,LED_Bright=80; //rgb亮度
 bool LED_Flag=false;
 // 按下按键即会执行该函数
+
 void button1_callback(const String & state) {
     BLINKER_LOG("get button state: ", state);
     //digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
@@ -29,6 +30,11 @@ void button1_callback(const String & state) {
     else SET_RGB(0,0,0,0);
 }
 
+void button2_callback(const String & state) {
+    BLINKER_LOG("get button state: ", state);
+    //digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    Blinker.reset();
+    }
 // 如果未绑定的组件被触发，则会执行其中内容
 void dataRead(const String & data)
 {
@@ -42,17 +48,18 @@ void SET_RGB(int R,int G,int B,int bright)
     G = G*bright/100;
     B = B*bright/100;
     
-    //LED_R = map(R,0,255,0,1023);
-    //LED_G = map(G,0,255,0,1023);
-    //LED_B = map(B,0,255,0,1023);
-    LED_R=R;
-    LED_G=G;
-    LED_B=B;
+    //LED_R = map(R,0,255,0,1024);
+    //LED_G = map(G,0,255,0,1024);
+    //LED_B = map(B,0,255,0,1024); //共阳
+  
     
-    Serial.printf("R=%d G=%d B=%d bright=%d\n",LED_R,LED_G,LED_B,bright);
-    analogWrite(D7,LED_R);  
-    analogWrite(D6,LED_G); 
-    analogWrite(D5,LED_B); 
+    Serial.printf("R=%d G=%d B=%d bright=%d\n",R,G,B,bright);
+    //analogWrite(D7,1024-LED_R);  
+    //analogWrite(D6,1024-LED_G); 
+    //analogWrite(D5,1024-LED_B); 
+    analogWrite(D7,R);  
+    analogWrite(D6,G); 
+    analogWrite(D5,B); 
  
 
 }
@@ -120,6 +127,7 @@ void miotBright(const String & bright)
     BlinkerMIOT.brightness(colorW);//反馈小爱控制状态
     BlinkerMIOT.print();
 }
+
 void setup() {
     // 初始化串口
     Serial.begin(115200);
@@ -143,8 +151,12 @@ void setup() {
     BlinkerMIOT.attachPowerState(miotPowerState);
     BlinkerMIOT.attachColor(miotColor);//小爱调节颜色
     BlinkerMIOT.attachBrightness(miotBright);//小爱调节RGB亮度
+    //定义一个按键在手机app上，如果按下 配网重置 
+    Button2.attach(button2_callback);
+    
 }
 
 void loop() {
     Blinker.run();
 }
+

@@ -54,4 +54,59 @@
 
 ## 实现
 
-参考代码
+##### 一键配网：
+
+开机上电时候就自动进入等待配网环节
+
+进入手机app-开发者- smartconfig 进行一键配网  
+
+值得注意的是：
+
+ 			esp8266仅支持2.4Ghz的wifi,搜不到5Ghz的信号
+
+```c++
+#define BLINKER_ESP_SMARTCONFIG    //智能配网
+#define BLINKER_WIFI
+#include <Blinker.h>
+#include <EEPROM.h>
+
+char auth[] = "5f4e37b8b10***";
+
+void setup(){
+     Blinker.begin(auth);
+	
+}
+```
+
+
+
+##### 一键擦出：
+
+当app触发按钮“btn2”时，执行回调函数，擦除一键配网信息。
+
+```c++
+//在手机app上创建一个名为btn2的按键
+BlinkerButton Button2("btn2");
+
+//创建一个点击处理函数
+void button2_callback(const String & state) {
+       BLINKER_LOG("get button state: ", state);
+       Blinker.reset();   //调用系统定义的擦数函数
+}
+
+void setup(){
+    
+    //注册回调函数
+     Button2.attach(button2_callback);
+
+}
+
+
+```
+
+
+
+## 演示
+
+[bilibili演示](https://www.bilibili.com/video/BV1VZ4y1f7Wp)
+
